@@ -7,24 +7,20 @@ using UnityEngine.EventSystems;
 public class DeckManager : MonoBehaviour, IPointerClickHandler
 {
     public int playerScore;
+    public int dealerScore;
+    private bool isDealersTurn = false;
 
     public GameObject cardPrefab;
     public List<Card> deck;
 
     public GameObject playerArea;
     public GameObject dealerArea;
-
     public TMP_Text playerScoreText;
     public TMP_Text dealerScoreText;
-
 
     public List<Card> playerCards;
     public List<Card> dealerCards;
 
-
-    private int dealerScore; // ? already a value in the playerscoretext G.O.'s
-
-    private bool isDealersTurn = false;
 
     void Start()
     {
@@ -59,9 +55,12 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
 
             card.suit = (SuitsEnum)suit;
             card.value = value;
+            if (card.value > 10)
+            {
+                card.value = 10;
+            }
 
             card.cardArt = cardArt;
-
             deck.Add(card);
         }
     }
@@ -69,6 +68,8 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
     public void StartGame()
     {
         playerScore = 0;
+        dealerScore = 0;
+
         for (int i = 0; i < 2; i++)
         {
             DrawCard();
@@ -79,59 +80,50 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
     {
         DrawCard();
     }
-
-    public void DrawCard()
+    
+    public void DrawCard() // seperate into 2 methods, 1 for player, 1 for dealer.
     {
-        Debug.Log("Drawing cards for player..");
+        Debug.Log("Drawing card for player..");
         Card playerCard = Instantiate(deck[Random.Range(0, deck.Count)], new Vector3(0, 0, 0), Quaternion.identity);
         playerCard.transform.SetParent(playerArea.transform, false);
         playerCards.Add(playerCard);
 
-        Debug.Log("cards for dealer ..");
+        Debug.Log("card for dealer ..");
         Card dealerCard = Instantiate(deck[Random.Range(0, deck.Count)], new Vector3(0, 0, 0), Quaternion.identity);
         dealerCard.transform.SetParent(dealerArea.transform, false);
         dealerCards.Add(dealerCard);
 
-        AddToPlayerScore(playerCard.value);
+        countScore(playerCard.value);
         playerScoreText.text = $"{playerScore}";
         HasPlayerBust(); 
 
-        AddToDealerScore(dealerCard.value);
+        countScore(dealerCard.value);
         dealerScoreText.text = $"{dealerScore}";
-        // has dealer bust function or has bust universal function, that checkss both participants scores
+        // has dealer bust function or has bust universal function, that checkss all scores
     }
 
-    private int AddToPlayerScore(int value) // combine score methods 
+    private int countScore(int value) // combine score methods, ace logic
     {
-        if (value > 10)
+        if (isDealersTurn == false)
         {
-            value = 10;
+            playerScore += value;
+            return playerScore;
         }
-
-        // ace logic
-        
-        playerScore += value;
-        return playerScore;
-    }
-
-    private int AddToDealerScore(int value) // combine score metods
-    {
-        if (value > 10)
+        else 
         {
-            value = 10;
+            dealerScore += value;
+            return dealerScore;
         }
-
-        // ace logic
-        
-        dealerScore += value;
-        return dealerScore;
     }
 
     public void HasPlayerBust()
     {
         if (playerScore >= 22)
         {
+            isDealersTurn = true;
             GameOver("bust");
+            Debug.Log($"Player has bust with score of {playerScore}");
+            
         }
     }
 
