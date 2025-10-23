@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine.EventSystems;
 
+
 public class DeckManager : MonoBehaviour, IPointerClickHandler
 {
     public int playerScore;
@@ -77,6 +78,7 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
         }
 
         isDealersTurn = false;
+        Debug.Log("Players turn..");
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -89,7 +91,6 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
         {
             DrawCard(true);
         }
-        
     }
     
     public void DrawCard(bool isPlayersTurn)
@@ -100,8 +101,18 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
             Card playerCard = Instantiate(deck[Random.Range(0, deck.Count)], new Vector3(0, 0, 0), Quaternion.identity);
             playerCard.transform.SetParent(playerArea.transform, false);
             playerCards.Add(playerCard);
-            countScore(playerCard.value);
+
+            deck.Remove(playerCard); // test remove card
+            foreach(Card i in deck) // check deck after removing
+            {
+                Debug.Log($"{i.suit}: {i.value}");
+            }
+            Debug.Log(deck.Count);
+
+            CountPlayerScore(playerCard.value);
+            Debug.Log($"current scor for player; {playerScore}");
             playerScoreText.text = $"{playerScore}";
+            HasPlayerTwentyOne();
             HasPlayerBust(); 
         }
 
@@ -111,24 +122,32 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
             Card dealerCard = Instantiate(deck[Random.Range(0, deck.Count)], new Vector3(0, 0, 0), Quaternion.identity);
             dealerCard.transform.SetParent(dealerArea.transform, false);
             dealerCards.Add(dealerCard);
-            countScore(dealerCard.value);
+
+            deck.Remove(dealerCard);
+            foreach (Card i in deck)
+            {
+                Debug.Log($"{i.suit}: {i.value}");
+            }
+            Debug.Log(deck.Count);
+            
+            CountDealerScore(dealerCard.value);
+            Debug.Log($"current scor for dealer; {dealerScore}");
             dealerScoreText.text = $"{dealerScore}";
+            HasDealerTwentyOne();
             // has dealer bust function or has bust universal function, that checkss all scores
         } 
     }
 
-    private int countScore(int value) // combine score methods, ace logic
+    private int CountPlayerScore(int value) // ace logic
     {
-        if (!isDealersTurn)
-        {
-            playerScore += value;
-            return playerScore;
-        }
-        else
-        {
-            dealerScore += value;
-            return dealerScore;
-        }
+        playerScore += value;
+        return playerScore;
+    }
+
+    private int CountDealerScore(int value)
+    {
+        dealerScore += value;
+        return dealerScore;
     }
 
     public void HasPlayerBust()
@@ -136,16 +155,41 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
         if (playerScore >= 22)
         {
             isDealersTurn = true;
-            GameOver("bust");
             Debug.Log($"Player has bust with score of {playerScore}");
-            
+        }
+    }
+
+    public void HasDealerBust()
+    {
+        if (dealerScore >= 22)
+        {
+            isDealersTurn = false;
+            Debug.Log("dealer has bust");
+        }
+    }
+
+    public void HasPlayerTwentyOne()
+    {
+        if (playerScore == 21)
+        {
+            Debug.Log("Player has blackjack!");
+            isDealersTurn = true;
+        }
+    }
+    
+    public void HasDealerTwentyOne()
+    {
+        if (dealerScore == 21)
+        {
+            Debug.Log("Dealer has blackjack!");
+            isDealersTurn = false;
         }
     }
 
     public void GameOver(string text)
     {
         Debug.Log(text);
-        Debug.Log("dealer turn...");
-
+        Debug.Log("game over");
+        // clear UI cards, score keeping, and restart game. 
     }
 }
