@@ -65,51 +65,66 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public void StartGame()
+    public void StartGame() // should only be called once at the start of the game.
     {
         playerScore = 0;
         dealerScore = 0;
 
         for (int i = 0; i < 2; i++)
         {
-            DrawCard();
+            DrawCard(true);
+            DrawCard(false);
         }
+
+        isDealersTurn = false;
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        DrawCard();
+        if (isDealersTurn)
+        {
+            DrawCard(false);
+        }
+        if (!isDealersTurn)
+        {
+            DrawCard(true);
+        }
+        
     }
     
-    public void DrawCard() // seperate into 2 methods, 1 for player, 1 for dealer.
+    public void DrawCard(bool isPlayersTurn)
     {
-        Debug.Log("Drawing card for player..");
-        Card playerCard = Instantiate(deck[Random.Range(0, deck.Count)], new Vector3(0, 0, 0), Quaternion.identity);
-        playerCard.transform.SetParent(playerArea.transform, false);
-        playerCards.Add(playerCard);
+        if (isPlayersTurn)
+        {
+            Debug.Log("Drawing card for player..");
+            Card playerCard = Instantiate(deck[Random.Range(0, deck.Count)], new Vector3(0, 0, 0), Quaternion.identity);
+            playerCard.transform.SetParent(playerArea.transform, false);
+            playerCards.Add(playerCard);
+            countScore(playerCard.value);
+            playerScoreText.text = $"{playerScore}";
+            HasPlayerBust(); 
+        }
 
-        Debug.Log("card for dealer ..");
-        Card dealerCard = Instantiate(deck[Random.Range(0, deck.Count)], new Vector3(0, 0, 0), Quaternion.identity);
-        dealerCard.transform.SetParent(dealerArea.transform, false);
-        dealerCards.Add(dealerCard);
-
-        countScore(playerCard.value);
-        playerScoreText.text = $"{playerScore}";
-        HasPlayerBust(); 
-
-        countScore(dealerCard.value);
-        dealerScoreText.text = $"{dealerScore}";
-        // has dealer bust function or has bust universal function, that checkss all scores
+        if (!isPlayersTurn)
+        { 
+            Debug.Log("card for dealer ..");
+            Card dealerCard = Instantiate(deck[Random.Range(0, deck.Count)], new Vector3(0, 0, 0), Quaternion.identity);
+            dealerCard.transform.SetParent(dealerArea.transform, false);
+            dealerCards.Add(dealerCard);
+            countScore(dealerCard.value);
+            dealerScoreText.text = $"{dealerScore}";
+            // has dealer bust function or has bust universal function, that checkss all scores
+        } 
     }
 
     private int countScore(int value) // combine score methods, ace logic
     {
-        if (isDealersTurn == false)
+        if (!isDealersTurn)
         {
             playerScore += value;
             return playerScore;
         }
-        else 
+        else
         {
             dealerScore += value;
             return dealerScore;
