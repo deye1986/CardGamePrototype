@@ -17,5 +17,8 @@ Job list.
 Improve the README<br>
 add untracked files to gitignore sheet.<br>
 add the async operations to the draw card method so there is a delay between card deals. also for a pause at the end of rounds.<br>
-somthing wrong with the UI on clearing both play areas, and so need to fix <br>
-ensure dealer stand conditions applied.<br>
+somthing wrong with the UI on clearing both play areas, and so need to fix, now it wont automatically deal the next hand <br>
+ensure dealer stand conditions applied and working properly. the method is not being called and the check is not correctly implemented<br>
+the cards are being copied from the deck and drawn to the players hand. they need to be properly removed from the deck when when this happens.<br>
+Destroying the Cards in GameOver() means there is a problem dealing cards at runtime. perhaps look for a alternative to recycle the cards.<br> 
+The stand button still does not work on click, the Stand() does not call.
