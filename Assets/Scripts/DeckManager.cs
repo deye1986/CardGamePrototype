@@ -208,19 +208,16 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
     {
         if (dealerScore == playerScore)
         {
-            Debug.Log("Its a tie.");
             GameOver($"Its a tie.");
         }
 
         else if (dealerScore > playerScore)
         {
-            Debug.Log("Dealer wins");
             GameOver($"dealer wins with score of {dealerScore}");
         }
 
         else
         {
-            Debug.Log("Player Wins");
             GameOver($"Player wins with a score of {playerScore}");
         }
     }
