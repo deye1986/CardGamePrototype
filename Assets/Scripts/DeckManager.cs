@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.Threading.Tasks;
 
 
 public class DeckManager : MonoBehaviour, IPointerClickHandler
@@ -14,20 +15,16 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
     public GameObject cardPrefab;
     public List<Card> deck;
 
-    public GameObject playerArea;
-    public GameObject dealerArea;
-    public TMP_Text playerScoreText;
-    public TMP_Text dealerScoreText;
+    public GameObject playerArea; public GameObject dealerArea;
+    public TMP_Text playerScoreText; public TMP_Text dealerScoreText;
 
     public Button stand;
 
-    public List<Card> playerCards;
-    public List<Card> dealerCards;
+    public List<Card> playerCards; public List<Card> dealerCards;
 
 
     void Start()
     {
-
         StartGame();
     }
 
@@ -67,8 +64,7 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
 
     public void StartGame() // should only be called once at the start of each round.
     {
-        playerScore = 0;
-        dealerScore = 0;
+        playerScore = 0; dealerScore = 0;
 
         foreach (var suit in System.Enum.GetValues(typeof(SuitsEnum)))
         {
@@ -97,11 +93,12 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public void DrawCard(bool isPlayersTurn)
+    public async void DrawCard(bool isPlayersTurn)
     {
         if (isPlayersTurn)
         {
             Debug.Log("Drawing card for player..");
+            await Task.Delay(1000);
             Card playerCard = Instantiate(deck[Random.Range(0, deck.Count)], new Vector3(0, 0, 0), Quaternion.identity);
             playerCard.transform.SetParent(playerArea.transform, false);
             playerCards.Add(playerCard);
@@ -111,7 +108,7 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
             Debug.Log(deck.Count);
 
             CountPlayerScore(playerCard.value);
-            Debug.Log($"current scor for player; {playerScore}");
+            Debug.Log($"current score for player; {playerScore}");
             playerScoreText.text = $"{playerScore}";
             HasPlayerTwentyOne();
             HasPlayerBust();
@@ -120,6 +117,7 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
         if (!isPlayersTurn)
         {
             Debug.Log("card for dealer ..");
+            await Task.Delay(1000);
             Card dealerCard = Instantiate(deck[Random.Range(0, deck.Count)], new Vector3(0, 0, 0), Quaternion.identity);
             dealerCard.transform.SetParent(dealerArea.transform, false);
             dealerCards.Add(dealerCard);
@@ -139,8 +137,11 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
 
     public void DealerStandConditions()
     {
-        // dealer stands on 18 or higher
-        if (dealerScore <= 20 && dealerScore >= 18)
+        while (dealerScore < 18)
+        {
+            DrawCard(false);
+        }
+        if (dealerScore >= 18 && dealerScore <= 20) // dealer stands on 18 19 or 20
         {
             Debug.Log($"Dealer stands on {dealerScore}");
             dealerScoreText.text = $"Stands on {dealerScore}";
@@ -226,7 +227,7 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
     {
         Debug.Log(text);
         Debug.Log("game over");
-        // clear UI cards, score keeping, and restart game. Destroy(object, time);
+        // clear UI cards, score keeping, and restart game.
 
         GameObject[] usedCards = GameObject.FindGameObjectsWithTag("Card");
         foreach(GameObject card in usedCards)
