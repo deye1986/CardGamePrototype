@@ -23,6 +23,8 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
         {
             CreateCard(suit);
         }
+
+        stand.onClick.AddListener(Stand);
         StartGame();
     }
 
@@ -102,7 +104,8 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
             CountPlayerScore(playerCard.value);
             Debug.Log($"current score for player; {playerScore}");
             playerScoreText.text = $"{playerScore}";
-            HasPlayerTwentyOne();
+            await HasPlayerBlackjack();
+            await HasPlayerTwentyOne();
             HasPlayerBust();
         }
 
@@ -147,9 +150,11 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
     
     public async void Stand()
     {
+        stand.interactable = false;
         isDealersTurn = true;
         playerScoreText.text = $"Stands on {playerScore}";
         await DealerStandConditions();
+        
     }
 
     private int CountPlayerScore(int value) // ace logic
@@ -183,7 +188,18 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public async void HasPlayerTwentyOne()
+    public async Task HasPlayerTwentyOne()
+    {
+        if (playerScore == 21)
+        {
+            playerScoreText.text = $"Player has {playerScore}!";
+            await DealerStandConditions();
+            GameOver("Player has 21!");
+            
+        }
+    }
+
+    public async Task HasPlayerBlackjack()
     {
         if ((playerCards[0].value == 1 && playerCards[1].value == 10) || (playerCards[0].value == 10 && playerCards[1].value == 1))
         {
@@ -249,6 +265,7 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
             await Task.Delay(100);
         }
         Debug.Log("Starting new game.");
+        stand.interactable = true;
         StartGame();
     }
 }
