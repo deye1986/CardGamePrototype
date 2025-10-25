@@ -58,6 +58,15 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
                 card.value = 10;
             }
 
+            //ace logic
+            if (card.value == 1)
+            {
+                card.value = 11;
+                valueText.text = "Ace";
+            }
+
+            cardObject.SetActive(false);
+
             card.cardArt = cardArt;
             deck.Add(card);
         }
@@ -96,6 +105,7 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
             Debug.Log("Drawing card for player..");
             await Task.Delay(500);
             Card playerCard = Instantiate(deck[Random.Range(0, deck.Count)], new Vector3(0, 0, 0), Quaternion.identity);
+            playerCard.gameObject.SetActive(true);
             playerCard.transform.SetParent(playerArea.transform, false);
             playerCards.Add(playerCard);
 
@@ -106,7 +116,7 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
             playerScoreText.text = $"{playerScore}";
             await HasPlayerBlackjack();
             await HasPlayerTwentyOne();
-            HasPlayerBust();
+            await HasPlayerBust();
         }
 
         if (!isPlayersTurn)
@@ -114,6 +124,7 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
             Debug.Log("card for dealer ..");
             await Task.Delay(500);
             Card dealerCard = Instantiate(deck[Random.Range(0, deck.Count)], new Vector3(0, 0, 0), Quaternion.identity);
+            dealerCard.gameObject.SetActive(true);
             dealerCard.transform.SetParent(dealerArea.transform, false);
             dealerCards.Add(dealerCard);
 
@@ -169,8 +180,16 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
         return dealerScore;
     }
 
-    public async void HasPlayerBust()
+    public async Task HasPlayerBust()
     {
+        foreach (Card card in playerCards)
+        {
+            if (card.value == 11)
+            {
+                card.value = 1;
+            }
+        }
+        
         if (playerScore >= 22)
         {
             isDealersTurn = true;
@@ -182,6 +201,13 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
 
     public void HasDealerBust()
     {
+        foreach (Card card in dealerCards)
+        {
+            if (card.value == 11)
+            {
+                card.value = 1;
+            }
+        }
         if (dealerScore >= 22)
         {
             GameOver("Dealer has bust.");
@@ -201,7 +227,9 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
 
     public async Task HasPlayerBlackjack()
     {
-        if ((playerCards[0].value == 1 && playerCards[1].value == 10) || (playerCards[0].value == 10 && playerCards[1].value == 1))
+        if (((playerCards[0].value == 1 && playerCards[1].value == 10) 
+        || (playerCards[0].value == 10 && playerCards[1].value == 1)) 
+        && playerCards.Count == 2)
         {
             Debug.Log("Player has blackjack!");
             playerScoreText.text = $"{playerScore} Blackjack!";
@@ -212,7 +240,9 @@ public class DeckManager : MonoBehaviour, IPointerClickHandler
 
     public void HasDealerBlackjack()
     {
-        if (dealerScore == 21 && dealerCards.Count == 2)
+        if (((dealerCards[0].value == 1 && dealerCards[1].value == 10) 
+        || (dealerCards[0].value == 10 && dealerCards[1].value == 1)) 
+        && dealerCards.Count == 2)
         {
             dealerScoreText.text = $"{dealerScore}Blackjack!";
             GameOver("Dealer has blackjack!");

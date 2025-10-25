@@ -11,14 +11,14 @@ The remove appears to work but with visual bugs going into the next round.
 A stand button has been placed on the UI, it needs hooking up properly in the script. 
 A condition for the dealer to stand on 18 19 & 20 has been implemented, although im not sure if it is working, need to debug.<br>
 gitingnore updated to ignore *.blob (i think they are crash files)<br>
+stand button works as should. <br>
+the deck has been hidden from scene and players view. they nolonger interfere with the starting of new hands.<br>
+
 
 Job list.
 
+Faulty ace logic - HasDealerBust & HasPlayerBust<br>
 Improve the README<br>
 add untracked files to gitignore sheet.<br>
-add the async operations to the draw card method so there is a delay between card deals. also for a pause at the end of rounds.<br>
-somthing wrong with the UI on clearing both play areas, and so need to fix, now it wont automatically deal the next hand <br>
-ensure dealer stand conditions applied and working properly. the method is not being called and the check is not correctly implemented<br>
 the cards are being copied from the deck and drawn to the players hand. they need to be properly removed from the deck when when this happens.<br>
 Destroying the Cards in GameOver() means there is a problem dealing cards at runtime. perhaps look for a alternative to recycle the cards.<br> 
-The stand button still does not work on click, the Stand() does not call.
